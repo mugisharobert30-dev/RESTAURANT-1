@@ -1,0 +1,17 @@
+{
+  "name": "Luwombo Restaurant",
+  "short_name": "Luwombo",
+  "description": "Authentic Rwandan & international cuisine. Order online, reserve a table, track your order.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF6EF",
+  "theme_color": "#35702B",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
