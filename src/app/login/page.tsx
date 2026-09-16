@@ -59,16 +59,6 @@ function LoginForm() {
           New to Luwombo? <Link href="/register" className="font-bold text-brand-700 hover:underline">Create an account</Link>
         </p>
 
-        <details className="mt-6 rounded-xl bg-stone-50 p-3 text-xs text-cocoa/60 ring-1 ring-stone-200">
-          <summary className="cursor-pointer font-bold">Staff accounts for exploring</summary>
-          <ul className="mt-2 space-y-1">
-            <li><strong>Super Admin:</strong> root@luwombo.rw / super1234</li>
-            <li><strong>Admin:</strong> admin@luwombo.rw / admin1234 <span className="text-cocoa/40">(via Admin Login)</span></li>
-            <li><strong>Kitchen:</strong> chef@luwombo.rw / staff1234</li>
-            <li><strong>Waiter:</strong> waiter@luwombo.rw / staff1234</li>
-          </ul>
-        </details>
-
         <p className="mt-4 text-center text-xs text-cocoa/40">
           Restaurant staff? Use the dedicated{" "}
           <Link href="/admin/login" className="font-semibold text-brand-700 hover:underline">Admin Login</Link>.
