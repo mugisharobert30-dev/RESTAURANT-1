@@ -11,6 +11,23 @@ import { fmtDate, initials } from "@/lib/format";
 import { ROLE_LABELS, STAFF_ROLES, type Role } from "@/lib/types";
 import { Badge, Button, ConfirmDialog, Modal, Select } from "@/components/ui";
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+async function deleteSupabaseUsers(ids: string[]): Promise<{ ok: true } | { ok: false; error: string }> {
+  const errors: string[] = [];
+  for (const id of ids) {
+    const res = await fetch("/api/admin/delete-user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: id }),
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) errors.push(json.error ?? "Delete failed");
+  }
+  if (errors.length > 0) return { ok: false, error: errors.join("; ") };
+  return { ok: true };
+}
+
 export default function AdminStaffPage() {
   const auth = useAuth();
   const { toast } = useToast();
@@ -41,7 +58,16 @@ export default function AdminStaffPage() {
   };
   const toggleOne = (id: string) => setSelected((l) => (l.includes(id) ? l.filter((x) => x !== id) : [...l, id]));
 
-  const revokeSelected = () => {
+  const revokeSelected = async () => {
+    const realUsers = selected.filter((id) => UUID_RE.test(id));
+    if (realUsers.length > 0) {
+      const result = await deleteSupabaseUsers(realUsers);
+      if (!result.ok) {
+        toast(`Supabase delete failed: ${result.error}`, "error");
+        setConfirmBulk(false);
+        return;
+      }
+    }
     store.mutate((d) => {
       d.profiles = d.profiles.filter((p) => !selected.includes(p.id));
     });
@@ -160,15 +186,24 @@ export default function AdminStaffPage() {
       <ConfirmDialog
         open={!!removeTarget}
         title="Revoke portal access?"
-        message="The person will no longer be able to log into the management platform."
-        confirmLabel="Revoke access"
+        message="The person will be permanently deleted from Supabase and will no longer be able to log into the management platform."
+        confirmLabel="Revoke & delete"
         onCancel={() => setRemoveTarget(null)}
-        onConfirm={() => {
+        onConfirm={async () => {
           if (!removeTarget) return;
+          if (UUID_RE.test(removeTarget)) {
+            const result = await deleteSupabaseUsers([removeTarget]);
+            if (!result.ok) {
+              toast(`Supabase delete failed: ${result.error}`, "error");
+              setRemoveTarget(null);
+              return;
+            }
+          }
           store.mutate((d) => {
             d.profiles = d.profiles.filter((p) => p.id !== removeTarget);
           });
-          toast("Access revoked.");
+          logAudit(auth.profile!.full_name, "Revoked staff access", "Profile", "", removeTarget);
+          toast("Account deleted from Supabase.");
           setRemoveTarget(null);
         }}
       />
@@ -176,7 +211,7 @@ export default function AdminStaffPage() {
       <ConfirmDialog
         open={confirmBulk}
         title={`Revoke access for ${selected.length} staff member${selected.length === 1 ? "" : "s"}?`}
-        message="None of the selected people will be able to log into the management platform."
+        message="The selected people will be permanently deleted from Supabase."
         confirmLabel="Revoke access"
         onCancel={() => setConfirmBulk(false)}
         onConfirm={revokeSelected}
