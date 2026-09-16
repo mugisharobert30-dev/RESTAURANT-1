@@ -530,7 +530,6 @@ const demoCustomer: Profile = {
 
 export const PROFILES: Profile[] = [
   demoCustomer,
-  { id: "usr-superadmin", full_name: "Owner Root", email: "root@luwombo.rw", phone: "+250 788 000 000", role: "superadmin", active: true, created_at: iso(60 * 24 * 420) },
   { id: "usr-admin", full_name: "Aline Kayitesi", email: "admin@luwombo.rw", phone: "+250 788 000 001", role: "admin", active: true, created_at: iso(60 * 24 * 400) },
   { id: "usr-manager", full_name: "Jean-Paul Habimana", email: "manager@luwombo.rw", phone: "+250 788 000 002", role: "manager", active: true, created_at: iso(60 * 24 * 380) },
   { id: "usr-chef", full_name: "Emmanuel Nshimiyimana", email: "chef@luwombo.rw", phone: "+250 788 000 003", role: "kitchen", active: true, created_at: iso(60 * 24 * 350) },
