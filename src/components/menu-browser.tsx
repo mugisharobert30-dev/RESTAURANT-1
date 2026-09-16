@@ -64,7 +64,7 @@ export function MenuBrowser({ compactCategories }: { compactCategories?: boolean
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search food — try 'luwombo', 'brochettes', 'juice'..."
-            className="h-12 w-full rounded-xl border border-cocoa/15 bg-white pl-10 pr-4 text-sm shadow-card placeholder:text-cocoa/40 focus:outline-none focus:ring-2 focus:ring-brand-500/60"
+            className="h-12 w-full rounded-xl border border-cocoa/15 bg-white pl-10 pr-4 text-base shadow-card placeholder:text-cocoa/40 focus:outline-none focus:ring-2 focus:ring-brand-500/60 sm:text-sm"
             type="search"
           />
         </label>

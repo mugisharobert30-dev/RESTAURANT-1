@@ -90,17 +90,11 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="flex flex-1 items-center justify-end lg:hidden">
-          <div className="w-full max-w-xs">
-            <SiteSearch />
-          </div>
-        </div>
-
         <div className="hidden w-48 shrink-0 lg:block xl:w-64">
           <SiteSearch />
         </div>
 
-        <div className="flex shrink-0 items-center gap-1.5 lg:gap-2">
+        <div className="ml-auto flex shrink-0 items-center gap-1.5 lg:gap-2">
           <div className="relative hidden sm:block" ref={langRef}>
             <button
               onClick={() => setLangOpen((o) => !o)}
@@ -189,6 +183,10 @@ export function Header() {
             <MenuIcon className="h-6 w-6" />
           </button>
         </div>
+      </div>
+
+      <div className="border-t border-cocoa/8 bg-white px-4 py-2 lg:hidden">
+        <SiteSearch />
       </div>
 
       {mobileOpen && (

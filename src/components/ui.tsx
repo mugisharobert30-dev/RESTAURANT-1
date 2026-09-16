@@ -55,7 +55,7 @@ export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
           id={inputId}
           aria-invalid={!!error}
           className={cx(
-            "h-10 w-full rounded-xl border bg-white px-3 text-sm text-cocoa placeholder:text-cocoa/40 focus:outline-none focus:ring-2 focus:ring-brand-500/60",
+            "h-10 w-full rounded-xl border bg-white px-3 text-base text-cocoa placeholder:text-cocoa/40 focus:outline-none focus:ring-2 focus:ring-brand-500/60 sm:text-sm",
             error ? "border-red-400" : "border-cocoa/15",
             className
           )}

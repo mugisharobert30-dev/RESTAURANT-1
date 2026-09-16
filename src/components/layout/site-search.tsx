@@ -87,7 +87,7 @@ export function SiteSearch() {
           placeholder="Search menu &amp; site…"
           type="search"
           aria-label="Search the site"
-          className="h-10 w-full rounded-xl border border-cocoa/15 bg-stone-50 pl-9 pr-3 text-sm placeholder:text-cocoa/40 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/30"
+          className="h-10 w-full rounded-xl border border-cocoa/15 bg-stone-50 pl-9 pr-3 text-base placeholder:text-cocoa/40 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/30 sm:text-sm"
         />
       </label>
 
