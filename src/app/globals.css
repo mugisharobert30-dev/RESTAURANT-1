@@ -6,6 +6,15 @@ body {
   overflow-x: hidden;
 }
 
+@media (max-width: 639px) {
+  .text-xs {
+    font-size: 0.8125rem;
+  }
+  .text-sm {
+    font-size: 0.9375rem;
+  }
+}
+
 ::selection {
   background: #f4a93b66;
 }
