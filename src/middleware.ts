@@ -8,7 +8,8 @@ export function middleware(req: NextRequest) {
   }
 
   const lrSession = req.cookies.get("lr_session")?.value;
-  const sbToken = req.cookies.get("sb-access-token") ?? req.cookies.get("sb-auth-token");
+  const ref = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL || "").hostname.split(".")[0];
+  const sbToken = ref ? req.cookies.get(`sb-${ref}-auth-token`) : undefined;
 
   if (!lrSession && !sbToken) {
     const url = req.nextUrl.clone();
