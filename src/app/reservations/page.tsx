@@ -139,7 +139,7 @@ export default function ReservationsPage() {
 
             <div>
               <span className="mb-1.5 flex items-center gap-1.5 text-sm font-bold"><Users className="h-4 w-4 text-brand-600" /> Guests</span>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 {[1, 2, 3, 4, 5, 6].map((n) => (
                   <button
                     key={n}

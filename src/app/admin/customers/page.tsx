@@ -7,7 +7,7 @@ import { store } from "@/lib/store";
 import { logAudit } from "@/lib/db";
 import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/context/toast-context";
-import { fmtDate, initials } from "@/lib/format";
+import { fmtDate, initials, cx } from "@/lib/format";
 import { Badge, Button, ConfirmDialog } from "@/components/ui";
 
 export default function AdminCustomersPage() {
@@ -87,7 +87,33 @@ export default function AdminCustomersPage() {
         </div>
       </header>
 
-      <div className="overflow-x-auto rounded-2xl border border-cocoa/10 bg-white shadow-card">
+      <div className="space-y-3 sm:hidden" aria-label="Customers list">
+        {customers.map((c) => (
+          <div key={c.id} className={cx("rounded-2xl border border-cocoa/10 bg-white p-4 shadow-card", selected.includes(c.id) && "ring-2 ring-brand-500/40")}>
+            <div className="flex items-start gap-3">
+              <input type="checkbox" checked={selected.includes(c.id)} onChange={() => toggleOne(c.id)} aria-label={`Select ${c.full_name}`} className="mt-1 h-4 w-4 shrink-0 rounded accent-brand-600" />
+              <div className="min-w-0 flex-1">
+                <p className="flex items-center gap-2 font-semibold">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-leaf-100 text-xs font-bold text-leaf-800">{initials(c.full_name)}</span>
+                  <span className="truncate">{c.full_name}</span>
+                </p>
+                <p className="mt-1.5 truncate text-xs text-cocoa/60">{c.email} · {c.phone}</p>
+              </div>
+              <div className="shrink-0 text-right">
+                <p className="font-extrabold">{c.totalSpent.toLocaleString()} RWF</p>
+                <p className="text-[11px] text-cocoa/40">{c.orderCount} orders</p>
+              </div>
+            </div>
+            <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-cocoa/6 pt-3 text-xs text-cocoa/60">
+              <Badge tone={c.active ? "green" : "red"}>{c.active ? "Active" : "Disabled"}</Badge>
+              {c.totalSpent > 30000 && <Badge tone="amber">VIP</Badge>}
+              <span className="ml-auto">Since {fmtDate(c.created_at)}{c.lastOrder && <> · last {fmtDate(c.lastOrder.created_at)}</>}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="hidden overflow-x-auto rounded-2xl border border-cocoa/10 bg-white shadow-card sm:block">
         <table className="w-full min-w-[760px] text-left text-sm">
           <thead>
             <tr className="border-b border-cocoa/10 bg-stone-50 text-xs uppercase tracking-wide text-cocoa/45">

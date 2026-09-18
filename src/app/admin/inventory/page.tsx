@@ -7,7 +7,7 @@ import { store } from "@/lib/store";
 import { logAudit } from "@/lib/db";
 import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/context/toast-context";
-import { fmtRWF, timeAgo } from "@/lib/format";
+import { fmtRWF, timeAgo, cx } from "@/lib/format";
 import type { StockMovement } from "@/lib/types";
 import { Badge, Button, Card, Input, Modal, Select, StatCard } from "@/components/ui";
 
@@ -78,7 +78,32 @@ export default function AdminInventoryPage() {
       )}
 
       <div className="grid gap-4 xl:grid-cols-[1fr_360px]">
-        <div className="overflow-x-auto rounded-2xl border border-cocoa/10 bg-white shadow-card">
+        <div className="space-y-3 sm:hidden" aria-label="Ingredient list">
+          {inventory.map((i) => (
+            <div key={i.id} className={cx("rounded-2xl border border-cocoa/10 bg-white p-4 shadow-card", i.current_stock < i.min_stock && "bg-red-50/40 ring-1 ring-red-200")}>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-semibold">{i.name}</p>
+                  <p className="text-xs text-cocoa/40">updated {timeAgo(i.updated_at)}</p>
+                </div>
+                <div className="shrink-0 text-right">
+                  <p className={cx("text-lg font-extrabold", i.current_stock < i.min_stock ? "text-red-700" : "text-cocoa")}>
+                    {i.current_stock}<span className="ml-1 text-xs font-medium text-cocoa/50">{i.unit}</span>
+                  </p>
+                  <p className="text-xs text-cocoa/50">min {i.min_stock}</p>
+                </div>
+              </div>
+              <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-cocoa/6 pt-3 text-sm text-cocoa/70">
+                {i.current_stock < i.min_stock && <Badge tone="red"><AlertTriangle className="h-3 w-3" /> Low</Badge>}
+                <span className="min-w-0 truncate">{i.supplier}</span>
+                <span className="ml-auto whitespace-nowrap">{fmtRWF(i.cost_per_unit)}</span>
+                <Button size="sm" variant="outline" onClick={() => { setMoving(i.id); setMoveType("in"); }}>Adjust</Button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="hidden overflow-x-auto rounded-2xl border border-cocoa/10 bg-white shadow-card sm:block">
           <table className="w-full min-w-[720px] text-left text-sm">
             <thead>
               <tr className="border-b border-cocoa/10 bg-stone-50 text-xs uppercase tracking-wide text-cocoa/45">

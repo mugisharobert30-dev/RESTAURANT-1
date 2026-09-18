@@ -74,7 +74,43 @@ export default function AdminPaymentsPage() {
         </label>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-cocoa/10 bg-white shadow-card">
+      <div className="space-y-3 sm:hidden" aria-label="Transactions list">
+        {payments.map((o) => (
+          <div key={o.id} className="rounded-2xl border border-cocoa/10 bg-white p-4 shadow-card">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="font-bold">{o.order_number}</p>
+                <p className="text-xs text-cocoa/40">{fmtDateTime(o.created_at)}</p>
+              </div>
+              <span className="shrink-0 font-extrabold">{fmtRWF(o.total)}</span>
+            </div>
+            <p className="mt-2 text-sm text-cocoa/70">{o.customer_name}</p>
+            <p className="mt-1 flex flex-wrap items-center gap-1.5 text-sm font-medium">
+              {METHOD_ICONS[o.payment_method ?? "cash_on_delivery"]}{METHOD_LABELS[o.payment_method ?? "cash_on_delivery"]}
+              <span className="font-mono text-xs text-cocoa/55">{o.order_number.replace("LR-", "TXN-")}</span>
+            </p>
+            <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-cocoa/6 pt-3">
+              <Badge tone={o.payment_status === "paid" ? "green" : o.payment_status === "refunded" ? "blue" : o.payment_status === "failed" ? "red" : "amber"}>{o.payment_status}</Badge>
+              <span className="ml-auto flex gap-1.5">
+                {o.payment_status === "pending" && (
+                  <Button size="sm" onClick={() => {
+                    setPaymentStatus(o.id, "paid", auth.profile!.full_name);
+                    toast(`${o.order_number} marked paid (${auth.profile?.full_name}).`);
+                  }}>Mark paid</Button>
+                )}
+                {(o.payment_status === "paid" || o.payment_status === "failed") && (
+                  <Button size="sm" variant="outline" onClick={() => {
+                    setPaymentStatus(o.id, "refunded", auth.profile!.full_name);
+                    toast(`${o.order_number} refunded.`);
+                  }}>Refund</Button>
+                )}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="hidden overflow-x-auto rounded-2xl border border-cocoa/10 bg-white shadow-card sm:block">
         <table className="w-full min-w-[820px] text-left text-sm">
           <thead>
             <tr className="border-b border-cocoa/10 bg-stone-50 text-xs uppercase tracking-wide text-cocoa/45">

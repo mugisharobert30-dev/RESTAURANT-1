@@ -130,7 +130,78 @@ export default function AdminOrdersPage() {
               <Trash2 className="h-3.5 w-3.5" /> Delete ({selected.length})
             </Button>
           </BulkSelectBar>
-          <div className="overflow-x-auto rounded-2xl border border-cocoa/10 bg-white shadow-card">
+          <div className="space-y-3 sm:hidden" aria-label="Orders list">
+            {shown.map((o: Order) => (
+              <div key={o.id} className={cx("rounded-2xl border border-cocoa/10 bg-white p-4 shadow-card", selected.includes(o.id) && "ring-2 ring-brand-500/40")}>
+                <div className="flex items-start gap-3">
+                  <input type="checkbox" checked={selected.includes(o.id)} onChange={() => toggleOne(o.id)} aria-label={`Select ${o.order_number}`} className="mt-1 h-4 w-4 rounded accent-brand-600" />
+                  <div className="min-w-0 flex-1">
+                    <button onClick={() => setExpanded(expanded === o.id ? null : o.id)} className="flex items-center gap-1 font-mono font-extrabold text-brand-700 hover:underline">
+                      {o.order_number}
+                      <ChevronDown className={cx("h-3.5 w-3.5 transition-transform", expanded === o.id && "rotate-180")} />
+                    </button>
+                    <p className="text-[11px] text-cocoa/40">{fmtDateTime(o.created_at)} · {o.customer_name}</p>
+                  </div>
+                  <span className="shrink-0 font-extrabold">{fmtRWF(o.total)}</span>
+                </div>
+
+                <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-cocoa/70">
+                  <p><span className="font-semibold text-cocoa/50">Items:</span> {o.items.reduce((s, l) => s + l.quantity, 0)} · {o.items[0]?.name}</p>
+                  <p><span className="font-semibold text-cocoa/50">Type:</span> {ORDER_TYPE_LABELS[o.type]}{o.table_label ? ` · ${o.table_label}` : ""}</p>
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={() => {
+                      const next = o.payment_status === "paid" ? "refunded" : "paid";
+                      void setPaymentStatus(o.id, next, auth.profile!.full_name);
+                      toast(`${o.order_number} marked ${next}.`);
+                    }}
+                    title="Toggle paid / refunded"
+                  >
+                    <Badge tone={o.payment_status === "paid" ? "green" : o.payment_status === "pending" ? "amber" : o.payment_status === "failed" ? "red" : "purple"}>
+                      {PAYMENT_STATUS_LABELS[o.payment_status]}
+                    </Badge>
+                  </button>
+                  <select
+                    value={o.status}
+                    onChange={(e) => {
+                      void updateOrderStatus(o.id, e.target.value as OrderStatus, auth.profile!.full_name);
+                      toast(`${o.order_number} → ${ORDER_STATUS_LABELS[e.target.value as OrderStatus]}`);
+                    }}
+                    aria-label={`Change status for ${o.order_number}`}
+                    className={cx("rounded-lg px-2 py-1.5 text-xs font-bold capitalize ring-1 outline-none", STATUS_TONE[o.status])}
+                  >
+                    {(Object.keys(ORDER_STATUS_LABELS) as OrderStatus[]).map((s) => (
+                      <option key={s} value={s}>{ORDER_STATUS_LABELS[s]}</option>
+                    ))}
+                  </select>
+                  <Button size="sm" variant="outline" className="ml-auto" onClick={() => setExpanded(expanded === o.id ? null : o.id)}>
+                    {expanded === o.id ? "Hide details" : "Details"}
+                  </Button>
+                </div>
+
+                {expanded === o.id && (
+                  <div className="mt-3 rounded-xl bg-stone-50/80 p-3">
+                    <ul className="grid gap-x-8 gap-y-1.5 text-sm">
+                      {o.items.map((l, i) => (
+                        <li key={i} className="flex justify-between gap-4">
+                          <span>{l.quantity} × {l.name}{l.options?.length ? <em className="ml-1 text-xs text-cocoa/45">({l.options.join(", ")})</em> : null}</span>
+                          <span className="shrink-0 text-cocoa/60">{fmtRWF(l.unit_price * l.quantity)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="mt-3 grid gap-2 border-t border-cocoa/10 pt-3 text-xs text-cocoa/60">
+                      <p>Subtotal {fmtRWF(o.subtotal)}{o.delivery_fee ? ` + delivery ${fmtRWF(o.delivery_fee)}` : ""}{o.discount ? ` − discount ${fmtRWF(o.discount)}` : ""}</p>
+                      <p>{o.delivery_address ?? (o.table_label ? `Table ${o.table_label}` : "Pickup at counter")}</p>
+                      {o.special_instructions && <p className="italic">“{o.special_instructions}”</p>}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          <div className="hidden overflow-x-auto rounded-2xl border border-cocoa/10 bg-white shadow-card sm:block">
           <table className="w-full min-w-[860px] text-left text-sm">
             <thead>
               <tr className="border-b border-cocoa/10 bg-stone-50 text-xs uppercase tracking-wide text-cocoa/45">
