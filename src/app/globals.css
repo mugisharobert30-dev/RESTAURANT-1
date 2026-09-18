@@ -12,10 +12,19 @@ body {
     overscroll-behavior-x: none;
   }
   .text-xs {
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
   }
   .text-sm {
-    font-size: 1rem;
+    font-size: 1.0625rem;
+  }
+  .text-\[9px\] {
+    font-size: 0.75rem;
+  }
+  .text-\[10px\] {
+    font-size: 0.8125rem;
+  }
+  .text-\[11px\] {
+    font-size: 0.875rem;
   }
 }
 
