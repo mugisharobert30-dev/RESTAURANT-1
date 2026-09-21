@@ -9,6 +9,7 @@ import { logAudit } from "@/lib/db";
 import { cutoffFor, deletableIds, deletableIdsHard } from "@/lib/cleanup";
 import { useAuth } from "@/context/auth-context";
 import { useToast } from "@/context/toast-context";
+import { cx } from "@/lib/format";
 import {
   CLEANUP_TARGETS,
   RESET_TARGETS,
@@ -145,13 +146,15 @@ function AutoCleanupCard() {
   const toggle = (key: CleanupTarget) => setTargets((l) => (l.includes(key) ? l.filter((x) => x !== key) : [...l, key]));
 
   const save = () => {
-    if (enabled && targets.length === 0) return toast("Pick at least one data type.", "error");
-    const next: AutoCleanupConfig = { enabled, older_than_days: days, targets };
+    const nextEnabled = !enabled;
+    if (nextEnabled && targets.length === 0) return toast("Pick at least one data type.", "error");
+    const next: AutoCleanupConfig = { enabled: nextEnabled, older_than_days: days, targets };
     store.mutate((d) => {
       d.settings.auto_cleanup = next;
     });
-    logAudit(auth.profile!.full_name, "Configured auto-cleanup", "System", "auto-cleanup", enabled ? `${ageLabel(days)}: ${targets.join(", ")}` : "Disabled");
-    toast(enabled ? "Automatic cleanup saved." : "Automatic cleanup turned off.");
+    setEnabled(nextEnabled);
+    logAudit(auth.profile!.full_name, "Configured auto-cleanup", "System", "auto-cleanup", nextEnabled ? `ON: ${ageLabel(days)}: ${targets.join(", ")}` : "OFF: Disabled");
+    toast(nextEnabled ? "Automatic cleanup is now ON." : "Automatic cleanup is now OFF.");
   };
 
   return (
@@ -160,14 +163,7 @@ function AutoCleanupCard() {
       title="Automatic cleanup"
       tone="green"
     >
-      <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-cocoa/70">
-        Status
-        <Badge tone={enabled ? "green" : "neutral"}>{enabled ? "ON" : "OFF"}</Badge>
-      </div>
-      <label className="flex cursor-pointer items-center gap-1.5 pb-1.5 text-xs font-semibold text-cocoa/70">
-        <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} className="h-3.5 w-3.5 rounded accent-leaf-600" />
-        Enabled
-      </label>
+      <p className="text-[11px] text-cocoa/45 mb-2">Click the status button to switch automatic cleanup on or off.</p>
       <TargetList info={CLEANUP_TARGETS} selected={targets} onToggle={toggle} counts={counts} />
       <div className="mt-2 flex flex-wrap items-end gap-2 border-t border-cocoa/6 pt-2">
         <div className="w-44">
@@ -175,7 +171,19 @@ function AutoCleanupCard() {
             {AGE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
           </Select>
         </div>
-        <Button size="sm" className="ml-auto" onClick={save}>{enabled ? "Save schedule" : "Save (off)"}</Button>
+        <button
+          type="button"
+          onClick={save}
+          aria-pressed={enabled}
+          title={enabled ? "Click to turn automatic cleanup off" : "Click to turn automatic cleanup on"}
+          className={cx(
+            "ml-auto inline-flex h-9 items-center gap-2 rounded-lg px-3 text-xs font-bold transition-colors",
+            enabled ? "bg-leaf-700 text-white hover:bg-leaf-800" : "bg-stone-200 text-stone-600 hover:bg-stone-300"
+          )}
+        >
+          <span className={cx("h-2 w-2 rounded-full", enabled ? "bg-white" : "bg-stone-400")} />
+          {enabled ? "ON" : "OFF"}
+        </button>
       </div>
     </CompactCard>
   );
@@ -255,13 +263,15 @@ function ScheduledResetCard() {
   const toggle = (key: ResetTarget) => setTargets((l) => (l.includes(key) ? l.filter((x) => x !== key) : [...l, key]));
 
   const save = () => {
-    if (enabled && targets.length === 0) return toast("Pick at least one data type.", "error");
-    const next: AutoResetConfig = { enabled, older_than_days: days, targets };
+    const nextEnabled = !enabled;
+    if (nextEnabled && targets.length === 0) return toast("Pick at least one data type.", "error");
+    const next: AutoResetConfig = { enabled: nextEnabled, older_than_days: days, targets };
     store.mutate((d) => {
       d.settings.auto_reset = next;
     });
-    logAudit(auth.profile!.full_name, "Configured scheduled reset", "System", "auto-reset", enabled ? `${ageLabel(days)}: ${targets.join(", ")}` : "Disabled");
-    toast(enabled ? "Scheduled reset saved." : "Scheduled reset turned off.");
+    setEnabled(nextEnabled);
+    logAudit(auth.profile!.full_name, "Configured scheduled reset", "System", "auto-reset", nextEnabled ? `ON: ${ageLabel(days)}: ${targets.join(", ")}` : "OFF: Disabled");
+    toast(nextEnabled ? "Scheduled reset is now ON." : "Scheduled reset is now OFF.");
   };
 
   return (
@@ -270,14 +280,7 @@ function ScheduledResetCard() {
       title="Scheduled reset"
       tone="purple"
     >
-      <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-cocoa/70">
-        Status
-        <Badge tone={enabled ? "green" : "neutral"}>{enabled ? "ON" : "OFF"}</Badge>
-      </div>
-      <label className="flex cursor-pointer items-center gap-1.5 pb-1.5 text-xs font-semibold text-cocoa/70">
-        <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} className="h-3.5 w-3.5 rounded accent-leaf-600" />
-        Enabled
-      </label>
+      <p className="text-[11px] text-cocoa/45 mb-2">Click the status button to switch scheduled reset on or off.</p>
       <TargetList info={RESET_TARGETS} selected={targets} onToggle={toggle} counts={counts} />
       <div className="mt-2 flex flex-wrap items-end gap-2 border-t border-cocoa/6 pt-2">
         <div className="w-44">
@@ -285,7 +288,19 @@ function ScheduledResetCard() {
             {AGE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
           </Select>
         </div>
-        <Button size="sm" className="ml-auto" onClick={save}>{enabled ? "Save schedule" : "Save (off)"}</Button>
+        <button
+          type="button"
+          onClick={save}
+          aria-pressed={enabled}
+          title={enabled ? "Click to turn scheduled reset off" : "Click to turn scheduled reset on"}
+          className={cx(
+            "ml-auto inline-flex h-9 items-center gap-2 rounded-lg px-3 text-xs font-bold transition-colors",
+            enabled ? "bg-purple-700 text-white hover:bg-purple-800" : "bg-stone-200 text-stone-600 hover:bg-stone-300"
+          )}
+        >
+          <span className={cx("h-2 w-2 rounded-full", enabled ? "bg-white" : "bg-stone-400")} />
+          {enabled ? "ON" : "OFF"}
+        </button>
       </div>
     </CompactCard>
   );
