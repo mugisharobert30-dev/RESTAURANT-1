@@ -141,7 +141,6 @@ function AutoCleanupCard() {
     const cutoff = cutoffFor(days);
     return Object.fromEntries(CLEANUP_TARGETS.map((t) => [t.key, deletableIds(source, t.key, cutoff).length]));
   }, [source, days]);
-  const nextRunTotal = targets.reduce((s, t) => s + (counts[t] ?? 0), 0);
 
   const toggle = (key: CleanupTarget) => setTargets((l) => (l.includes(key) ? l.filter((x) => x !== key) : [...l, key]));
 
@@ -161,9 +160,10 @@ function AutoCleanupCard() {
       title="Automatic cleanup"
       tone="green"
     >
-      <p className="text-[11px] text-cocoa/45 mb-2">
-        {enabled ? `Runs on load — ${nextRunTotal} record(s) queued.` : "Turned off. Same safety rules as manual."}
-      </p>
+      <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-cocoa/70">
+        Status
+        <Badge tone={enabled ? "green" : "neutral"}>{enabled ? "ON" : "OFF"}</Badge>
+      </div>
       <label className="flex cursor-pointer items-center gap-1.5 pb-1.5 text-xs font-semibold text-cocoa/70">
         <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} className="h-3.5 w-3.5 rounded accent-leaf-600" />
         Enabled
@@ -251,7 +251,6 @@ function ScheduledResetCard() {
     const cutoff = cutoffFor(days);
     return Object.fromEntries(RESET_TARGETS.map((t) => [t.key, deletableIdsHard(source, t.key, cutoff).length]));
   }, [source, days]);
-  const nextRunTotal = targets.reduce((s, t) => s + (counts[t] ?? 0), 0);
 
   const toggle = (key: ResetTarget) => setTargets((l) => (l.includes(key) ? l.filter((x) => x !== key) : [...l, key]));
 
@@ -271,9 +270,10 @@ function ScheduledResetCard() {
       title="Scheduled reset"
       tone="purple"
     >
-      <p className="text-[11px] text-cocoa/45 mb-2">
-        {enabled ? `Runs on load — ${nextRunTotal} record(s) queued.` : "Turned off."}
-      </p>
+      <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-cocoa/70">
+        Status
+        <Badge tone={enabled ? "green" : "neutral"}>{enabled ? "ON" : "OFF"}</Badge>
+      </div>
       <label className="flex cursor-pointer items-center gap-1.5 pb-1.5 text-xs font-semibold text-cocoa/70">
         <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} className="h-3.5 w-3.5 rounded accent-leaf-600" />
         Enabled
